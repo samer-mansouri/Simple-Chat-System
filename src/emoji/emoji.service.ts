@@ -27,10 +27,12 @@ export class EmojiService {
         newEmoji.emoji = createEmojiDto.emoji;
         newEmoji.userId = createEmojiDto.userId;
         newEmoji.messageId = createEmojiDto.messageId;
-        return this.emojiRepository.save(newEmoji);
+        let emojiToReturn = await this.emojiRepository.save(newEmoji);
+        emojiToReturn = await this.emojiRepository.findOne({ where: { id: emojiToReturn.id }, relations: [ 'message'] });
+        return emojiToReturn;
     }
 
-    return 'User not authorized to add emoji to message';
+    throw new Error('User not authorized to add emoji to this message');
 
   }
 

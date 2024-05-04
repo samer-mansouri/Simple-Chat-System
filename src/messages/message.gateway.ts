@@ -4,6 +4,7 @@ import { CreateMessageDto } from 'src/messages/dto/create-message.dto';
 import { Logger } from '@nestjs/common';
 import { MessagesService } from 'src/messages/messages.service';
 import { RedisService } from 'src/redis/redis.service';
+import { EmojiService } from 'src/emoji/emoji.service';
 
 @WebSocketGateway({
   cors: {
@@ -19,6 +20,7 @@ export class MessagesGateway {
     constructor(
         private readonly messagesService: MessagesService,
         private readonly redisSerice: RedisService,
+        private readonly emojiService: EmojiService
     ) {
     }
 
@@ -63,27 +65,77 @@ export class MessagesGateway {
         this.logger.debug(`Fetching all messages for client: ${client.id}`);
         return "Hello from getAllMessages!"
     }
+    
 
-    private async broadcastDirectMessage(receiverId: number, event: string, message: any): Promise<void> {
-        const sockets = await this.redisSerice.getConnections(receiverId.toString());
-        const senderSockets = await this.redisSerice.getConnections(message.senderId);
-        const allSockets = [...sockets, ...senderSockets];
-        console.log("Sockets: ", sockets);
+    // private async broadcastDirectMessage(receiverId: number, event: string, message: any): Promise<void> {
+    //     const sockets = await this.redisSerice.getConnections(receiverId.toString());
+    //     const senderSockets = await this.redisSerice.getConnections(message.senderId);
+    //     const allSockets = [...sockets, ...senderSockets];
+    //     console.log("Sockets: ", sockets);
+    //     allSockets.forEach(socketId => {
+    //         console.log("Sending message to socket: ", socketId);
+    //         this.server.to(socketId).emit(event, message);
+    //     });
+    //     this.logger.debug(`Sent direct message to ${receiverId}`);
+    // }
+
+    // private async broadcastDirectEmoji(receiverId: number, senderId: number, event: string, emoji: any): Promise<void> {
+    //     const sockets = await this.redisSerice.getConnections(receiverId.toString());
+    //     const senderSockets = await this.redisSerice.getConnections(senderId.toString());
+    //     const allSockets = [...sockets, ...senderSockets];
+    //     console.log("Sockets: ", sockets);
+    //     allSockets.forEach(socketId => {
+    //         console.log("Sending message to socket: ", socketId);
+    //         this.server.to(socketId).emit(event, emoji);
+    //     });
+    //     this.logger.debug(`Sent direct message to ${receiverId}`);
+    // }
+
+    private async broadcastToSockets(receiverId: number, event: string, data: any, senderId?: number): Promise<void> {
+        const receiverSockets = await this.redisSerice.getConnections(receiverId.toString());
+        const senderSockets = senderId ? await this.redisSerice.getConnections(senderId.toString()) : [];
+        const allSockets = [...receiverSockets, ...senderSockets];
+        console.log("Sockets: ", allSockets);
         allSockets.forEach(socketId => {
             console.log("Sending message to socket: ", socketId);
-            this.server.to(socketId).emit(event, message);
+            this.server.to(socketId).emit(event, data);
         });
         this.logger.debug(`Sent direct message to ${receiverId}`);
     }
+    
 
 
-    @SubscribeMessage('addMessage')
-    async addMessage(@MessageBody() messageDto: CreateMessageDto) {
+    // @SubscribeMessage('addMessage')
+    // async addMessage(@MessageBody() messageDto: CreateMessageDto) {
        
-        const newMessage = await this.messagesService.create(messageDto);
-        this.broadcastDirectMessage(messageDto.receiverId, 'new-message', newMessage);
+    //     const newMessage = await this.messagesService.create(messageDto);
+    //     this.broadcastDirectMessage(messageDto.receiverId, 'new-message', newMessage);
 
     
         
+    // }
+
+    // @SubscribeMessage('addEmoji')
+    // async addEmoji(@MessageBody() emojiDto: any) {
+    //     const newEmoji = await this.emojiService.create(emojiDto);
+
+    //     this.broadcastDirectEmoji(newEmoji[0].message.receiverId, newEmoji[0].message, 'new-emoji', newEmoji);
+
+        
+        
+    // }
+
+    @SubscribeMessage('addMessage')
+    async addMessage(@MessageBody() messageDto: CreateMessageDto) {
+        const newMessage = await this.messagesService.create(messageDto);
+        await this.broadcastToSockets(messageDto.receiverId, 'new-message', newMessage, messageDto.senderId);
     }
+
+    @SubscribeMessage('addEmoji')
+    async addEmoji(@MessageBody() emojiDto: any) {
+        const newEmoji = await this.emojiService.create(emojiDto);
+        const message = newEmoji[0].message; // Assuming newEmoji has a message property
+        await this.broadcastToSockets(message.receiverId, 'new-emoji', newEmoji, message.senderId);
+    }
+
 }
