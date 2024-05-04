@@ -1,6 +1,6 @@
 import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, JoinColumn, ManyToOne, OneToMany } from 'typeorm';
 import { User } from '../../users/entities/user.entity';
-import { Emoji } from 'src/emoji/entities/emoji.entity';
+import { Emoji } from '../../emoji/entities/emoji.entity';
 
 @Entity('message')
 export class Message {

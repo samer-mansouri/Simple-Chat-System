@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Inject, Injectable, forwardRef } from '@nestjs/common';
 import { CreateEmojiDto } from './dto/create-emoji.dto';
 import { UpdateEmojiDto } from './dto/update-emoji.dto';
 import { Emoji } from './entities/emoji.entity';
@@ -11,8 +11,9 @@ export class EmojiService {
   constructor(
     @InjectRepository(Emoji)
     private emojiRepository: Repository<Emoji>,
-    private messagesService: MessagesService,
+    @Inject(forwardRef(() => MessagesService)) private messagesService: MessagesService
   ) {}
+
 
   async create(createEmojiDto: CreateEmojiDto) {
     //find the message and user

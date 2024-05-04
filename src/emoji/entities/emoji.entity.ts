@@ -2,6 +2,7 @@ import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, JoinColumn, M
 import { User } from '../../users/entities/user.entity';
 import { Message } from '../../messages/entities/message.entity';
 
+@Entity('emoji')
 export class Emoji {
     @PrimaryGeneratedColumn()
     id: number;
@@ -18,7 +19,7 @@ export class Emoji {
     @Column()
     messageId: number;
 
-    @ManyToOne(() => Message)
+    @ManyToOne(() => Message, message => message.emojis)
     @JoinColumn({ name: 'messageId' })
     message: Message;
 
