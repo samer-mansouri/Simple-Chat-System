@@ -20,7 +20,7 @@ export class MessagesService {
     let messageToReturn = await this.messagesRepository.save(newMessage);
 
     messageToReturn = await this.messagesRepository.findOne({ where: { id: messageToReturn.id },
-      relations: ['sender', 'receiver']
+      relations: ['sender', 'receiver', 'emojis']
    });
    
     return messageToReturn;
@@ -31,7 +31,7 @@ export class MessagesService {
   }
 
   findOne(id: number) {
-    return `This action returns a #${id} message`;
+    return this.messagesRepository.findOne({ where: { id }, relations: ['sender', 'receiver'] })
   }
 
   update(id: number, updateMessageDto: UpdateMessageDto) {
@@ -51,7 +51,7 @@ export class MessagesService {
       order: {
         createdAt: 'ASC'
       },
-      relations: ['sender', 'receiver']
+      relations: ['sender', 'receiver', 'emojis']
     });
   }
 

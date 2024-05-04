@@ -81,12 +81,9 @@ export class MessagesGateway {
     async addMessage(@MessageBody() messageDto: CreateMessageDto) {
        
         const newMessage = await this.messagesService.create(messageDto);
+        this.broadcastDirectMessage(messageDto.receiverId, 'new-message', newMessage);
 
-        if(!newMessage.roomId) {
-
-            this.broadcastDirectMessage(messageDto.receiverId, 'new-message', newMessage);
-
-        } 
+    
         
     }
 }

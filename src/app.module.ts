@@ -5,6 +5,8 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { RedisModule } from 'nestjs-ioredis';
 import { MessagesModule } from './messages/messages.module';
 import { UsersModule } from './users/users.module';
+import { EmojiModule } from './emoji/emoji.module';
+import { LikeModule } from './like/like.module';
 import * as dotenv from 'dotenv';
 
 
@@ -29,7 +31,7 @@ dotenv.config();
       password: process.env.REDIS_PASSWORD,
       db: parseInt(process.env.REDIS_DB),
     })
-    , MessagesModule, UsersModule,
+    , MessagesModule, UsersModule, EmojiModule, LikeModule,
   ],
   controllers: [AppController],
   providers: [AppService],

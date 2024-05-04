@@ -1,12 +1,13 @@
-import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, JoinColumn, ManyToOne } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, JoinColumn, ManyToOne, OneToMany } from 'typeorm';
 import { User } from '../../users/entities/user.entity';
+import { Emoji } from 'src/emoji/entities/emoji.entity';
 
 @Entity('message')
 export class Message {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column()
+  @Column({ name: 'senderId'  })
   senderId: number;
 
   @ManyToOne(() => User)
@@ -27,7 +28,8 @@ export class Message {
   @CreateDateColumn()
   createdAt: Date;
 
-  @Column({ name: 'roomId', nullable: true })
-  roomId: number;
+  @OneToMany(() => Emoji, emoji => emoji.message)
+  emojis: Emoji[];
+
 
 }
