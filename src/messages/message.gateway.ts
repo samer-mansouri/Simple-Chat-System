@@ -5,6 +5,7 @@ import { Inject, Logger, forwardRef } from '@nestjs/common';
 import { MessagesService } from 'src/messages/messages.service';
 import { RedisService } from 'src/redis/redis.service';
 import { EmojiService } from 'src/emoji/emoji.service';
+import { CreateEmojiDto } from 'src/emoji/dto/create-emoji.dto';
 
 @WebSocketGateway({
   cors: {
@@ -86,9 +87,10 @@ export class MessagesGateway {
     }
 
     @SubscribeMessage('addEmoji')
-    async addEmoji(@MessageBody() emojiDto: any) {
+    async addEmoji(@MessageBody() emojiDto: CreateEmojiDto) {
+        this.logger.debug(`Adding emoji to message: ${emojiDto.messageId} by user: ${emojiDto.userId}`);
         const newEmoji = await this.emojiService.create(emojiDto);
-        const message = newEmoji[0].message;
+        const message = newEmoji.message;
         await this.broadcastToSockets(message.receiverId, 'new-emoji', newEmoji, message.senderId);
     }
 

@@ -18,18 +18,19 @@ export class EmojiService {
   async create(createEmojiDto: CreateEmojiDto) {
     //find the message and user
     let message = await this.messagesService.findOne(createEmojiDto.messageId);
+    // console.log("message", message);
+    // if (!message) {
+    //   return 'Message not found';
+    // }
 
-    if (!message) {
-      return 'Message not found';
-    }
-
-    if (message[0].senderId === createEmojiDto.userId || message[0].receiverId === createEmojiDto.userId) {
+    if (message.senderId == createEmojiDto.userId || message.receiverId == createEmojiDto.userId) {
         const newEmoji = new Emoji();
         newEmoji.emoji = createEmojiDto.emoji;
         newEmoji.userId = createEmojiDto.userId;
         newEmoji.messageId = createEmojiDto.messageId;
         let emojiToReturn = await this.emojiRepository.save(newEmoji);
         emojiToReturn = await this.emojiRepository.findOne({ where: { id: emojiToReturn.id }, relations: [ 'message'] });
+        console.log("emojiToReturn", emojiToReturn);
         return emojiToReturn;
     }
 

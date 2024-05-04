@@ -7,6 +7,7 @@ export class Emoji {
     @PrimaryGeneratedColumn()
     id: number;
 
+    @Column()
     emoji: number;
     
     @Column()
