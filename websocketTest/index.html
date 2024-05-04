@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chat Application</title>
+    <link rel="stylesheet" href="styles.css">
+    <script src="https://cdn.socket.io/4.4.1/socket.io.min.js" crossorigin="anonymous"></script>
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+    <!-- Notyf CSS -->
+<link rel="stylesheet" href="https://unpkg.com/notyf/notyf.min.css">
+<!-- Notyf JS -->
+<script src="https://unpkg.com/notyf/notyf.min.js"></script>
+
+</head>
+<body>
+    <div id="loginPage" class="page">
+        <h2>Enter Your User ID</h2>
+        <form id="userIdForm">
+            <input type="text" id="userIdInput" placeholder="Enter your user ID" required>
+            <button type="submit">Login</button>
+        </form>
+    </div>
+    <div id="chatPage" class="page" style="display: none;">
+        <div id="userListPanel">
+            <h3>Users</h3>
+            <ul id="userList"></ul>
+        </div>
+        <div id="chatPanel">
+            <ul id="messages"></ul>
+            <form id="messageForm">
+                <input type="text" id="messageInput" placeholder="Type a message..." required>
+                <button type="submit">Send</button>
+            </form>
+        </div>
+    </div>
+    <script src="client.js"></script>
+</body>
+</html>
